@@ -1,0 +1,43 @@
+
+name: Build SocialPilot AI Windows Installer
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build SocialPilot AI
+        run: |
+          pyinstaller --noconfirm --clean --windowed --onedir --name SocialPilotAI --collect-all PySide6 --hidden-import keyring.backends.Windows main.py
+
+      - name: Install Inno Setup
+        run: choco install innosetup --yes --no-progress
+
+      - name: Create Windows Installer
+        run: |
+          New-Item -ItemType Directory -Force -Path installer
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "SocialPilotAI-Setup.iss"
+        shell: powershell
+
+      - name: Upload Windows Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: SocialPilotAI-Windows-Installer
+          path: installer/*.exe
