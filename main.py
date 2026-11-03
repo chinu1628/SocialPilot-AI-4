@@ -1,4 +1,4 @@
-import sys, os, sqlite3, csv, shutil, json, urllib.parse, requests
+import sys, os, sqlite3, csv, shutil, json, urllib.parse, requests, re
 from datetime import datetime, date
 from PySide6.QtWidgets import *
 from PySide6.QtCore import Qt, QDate
@@ -27,6 +27,12 @@ def dbconn():
         id INTEGER PRIMARY KEY AUTOINCREMENT, workspace TEXT, campaign_name TEXT,
         phone TEXT, contact_name TEXT, template_name TEXT, language TEXT,
         payload TEXT, status TEXT DEFAULT 'Queued', result TEXT, created TEXT, completed TEXT)""")
+    c.execute("""CREATE TABLE IF NOT EXISTS integrations(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        workspace TEXT NOT NULL, provider TEXT NOT NULL,
+        account_name TEXT, account_id TEXT, app_id TEXT,
+        status TEXT, notes TEXT, updated TEXT,
+        UNIQUE(workspace, provider))""")
     # Consent is explicit and defaults OFF. Existing contacts are not automatically opted in.
     cols=[r[1] for r in c.execute("PRAGMA table_info(contacts)")]
     if "marketing_opt_in" not in cols:
