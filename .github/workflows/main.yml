@@ -73,3 +73,5 @@ jobs:
           name: SocialPilotAI-Windows-Installer
           path: source/installer/SocialPilotAI-Setup-4.0.0.exe
           if-no-files-found: error
+
+# Windows checkout uses a safe directory name; repository name no longer ends with a period.
